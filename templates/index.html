@@ -1,0 +1,268 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>haha</title>
+    <script type="text/javascript" src="js/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            background-color: white;
+        }
+        #game{
+
+        }
+    </style>
+</head>
+<body>
+<div id="game">
+<script type="text/javascript">
+//var wheight = window.innerHeight;
+//var ratio = 1648/2296;
+//var wwidth = wheight *ratio;
+var game = new Phaser.Game(600, 836, Phaser.CANVAS, 'game', { preload: preload, create: create, update: update });
+
+
+function preload() {
+
+    game.load.image("bg", "assets/viral3s.png");
+    game.load.image("boat", "assets/viral5s.png");
+    game.load.image("boyi", "assets/viral1s.png");
+    game.load.image("girli", "assets/viral2s.png");
+    game.load.image("badtext", "assets/enige.png");
+    game.load.image("question", "assets/tekstkeuws.png");
+    game.load.image("boatsplash", "assets/viraliciouss.png");
+    game.load.image("redfalling", "assets/viral4s.png");
+    
+}
+
+
+var croprect;
+var v;
+var b;
+var q;
+var red;
+var rightbutton = 2;
+var buttonpressed;
+var tweenmoveb;
+var tweenshowq;
+var boat2;
+var boy;
+var girl;
+var tgirl;
+var tboy;
+var btext;
+// var but1;
+// var butdownflag;
+
+
+function create() {
+    //game.physics.startSystem(Phaser.Physics.ARCADE);
+    game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+    // game.stage.disableVisibilityChange = true;
+    //game.scale.setShowAll();
+    //game.scale.minWidth = wwidth/2;
+    //game.scale.minHeight = wheight/2;
+    //game.scale.maxWidth = wwidth;
+    //game.scale.maxHeight = wheight;
+    game.scale.pageAlignHorizontally = true;
+    game.scale.pageAlignVertically = true;
+    game.scale.setScreenSize(true);
+    //game.world.setBounds(50, 50, 1648-100, 2296-100);
+    
+
+    v = game.add.sprite(0,0 , "bg");
+    
+    b = game.add.sprite(600, 260, "boat");
+    girl = game.world.create(100,400,"girli", false,false);
+    boy = game.world.create(300,400,"boyi", false,false);
+    tgirl = game.add.tween(girl);
+    tboy = game.add.tween(boy);
+    tgirl.to({y: -300},1000);
+    tboy.to({y: -300},1000);
+    tgirl.onComplete.addOnce(theEnd);
+
+    btext = game.world.create(200,300,"badtext",false,false);
+    btext.scale.set(0.6);
+    
+
+
+    croprect = {x : 0, y : 0 , width : 0, height : b.height};
+    
+    tweencropb = game.add.tween(croprect).to({width: b.width}, 3050, Phaser.Easing.Linear.None,true, 25, false);
+    tweenmoveb = game.add.tween(b);
+    tweenmoveb.to({x: 10, y:400}, 3000);
+    tweenmoveb.onComplete.addOnce(askQuestion,this);
+    tweenmoveb.start();
+
+
+    
+
+    //  Unless you specifically know your game needs to support multi-touch I would recommend setting this to 1
+    game.input.maxPointers = 1;
+
+     
+    
+
+}
+
+// var lastMove = [null,null];
+function update() {
+    b.crop(croprect);
+
+
+}
+
+function askQuestion() {
+    game.tweens.remove(tweencropb);
+    buttonpressed = 0;
+    q = game.add.sprite(330, 40, "question");
+    q.scale.set(0.7);
+    q.alpha = 0;
+    tweenshowq = game.add.tween(q);
+    tweenshowq.to({alpha: 1},1000);
+    //tweenshowq.onComplete.addOnce(function(){game.paused = true;})
+    tweenshowq.start();
+    but1 = game.add.button(440, 220);
+    but2 = game.add.button(440, 292);
+    but3 = game.add.button(440, 364);
+    but1.width = 145;
+    but1.height = 72;
+    but2.width = 145;
+    but2.height = 72; 
+    but3.width = 145;
+    but3.height = 72; 
+    // but1.alpha = 0;
+    // but2.alpha = 0; 
+    // but3.alpha = 0;
+    //game.tweens.remove(tweenmoveb);
+    //but1.name = "bob";
+    butdownflag = false;
+    //but1.onInputDown.add(setFlag);
+    game.input.onUp.add(checkAnswer);
+    //game.paused = true;
+    // if (buttonpressed === rightbutton){
+
+    // }
+    
+
+
+
+    
+}
+
+function checkAnswer(pointer){
+    
+    
+    //console.log(pointer);
+    if (Phaser.Rectangle.contains(but1.getBounds(), pointer.x, pointer.y)){ 
+        console.log("button 1 released");
+        buttonpressed = 1;
+        
+    }
+    else if (Phaser.Rectangle.contains(but2.getBounds(), pointer.x, pointer.y)){
+        console.log("button 2 released");
+        buttonpressed = 2;
+        
+    }
+    else if (Phaser.Rectangle.contains(but3.getBounds(), pointer.x, pointer.y)){
+        console.log("button 3 is released");
+        buttonpressed = 3;
+        
+    }
+    else
+    {
+        //console.log("no button release");
+        return;
+    }
+    
+    butdownflag = false;
+    game.input.onUp.removeAll();
+    outcome();
+
+}
+function setFlag(){
+    butdownflag = true;
+}
+function outcome(){
+    but1.kill();
+    but2.kill();
+    but3.kill();
+    boat2 = game.world.create(b.x-50, b.y-100, "boatsplash", false, false);
+    //boat2.crop({x : 10, y : 0 , width : boat2.width-180, height : boat2.height-110});
+    tweenshowq.to({alpha: 0},500);
+    tweenshowq.start();
+    //game.tweens.remove(tweenmoveb);
+    //console.log("in outcome");
+    if (buttonpressed === rightbutton){
+        //game.physics.arcade.enable(b);
+        // b.body.velocity.setTo(-600,150);
+        // b.checkWorldBounds = true;
+        // b.outOfBoundsKill = true;
+        
+        tweenmoveb = game.add.tween(b);
+        tweenmoveb.to({x: -600, y:530}, 3000).start();
+        
+        // tweenmoveb.onComplete.addOnce(function(){
+    
+        //     //game.tweens.remove(tweenmoveb);
+        //     //q.exists = false;
+        //     //b.exists = false;
+        // });
+        //tweenmoveb.start();
+        //game.tweens.remove(tweenshowq);
+    }else{
+        r = game.add.sprite(-30,-300, "redfalling");
+
+        tweenmover = game.add.tween(r);
+        tweenmover.to({y: 400},500);
+        tweenmover.onComplete.addOnce(fail,this);
+        tweenmover.start();
+        //tweenmoveb = game.add.tween(b);
+        //tweenmoveb.to({angle: -90, y: b.y-60}, 1000, Phaser.Easing.Exponential.In,true,1000);
+        //tweenmoveb.start();
+        // boat2 = game.world.create(b.x-60, b.y-300, "boatsplash", false, false);
+    }
+    //game.tweens.remove(tweenshowq);
+    //q.exists = false;
+
+    
+
+}
+
+function fail(){
+    //b.exists= false;
+    b.kill();
+    boat2.exists = true;
+    //r.exists = false;
+    r.kill();
+    girl.exists = true;
+    boy.exists = true;
+    
+    girl.bringToTop();
+    boy.bringToTop();
+    q.bringToTop();
+    
+    tgirl.start();
+    tboy.start();
+
+} 
+
+function theEnd(){
+    btext.exists = true;
+    btext.bringToTop();
+}  
+
+// function render()
+// {
+//     //game.debug.text(""+ player.body.velocity.x, 32, 32);
+
+// }
+
+
+
+</script>
+</div>
+
+</body>
+</html>
